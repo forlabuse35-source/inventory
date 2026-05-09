@@ -1,0 +1,37 @@
+# Environment & Config
+.env
+*.env.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# Dependencies
+/vendor/
+node_modules/
+
+# Logs
+*.log
+error_log
+
+# Compiled files
+*.class
+*.o
+*.so
+
+# Temp files
+*.tmp
+*.bak
+*.cache
