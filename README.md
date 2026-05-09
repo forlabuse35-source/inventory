@@ -34,87 +34,199 @@ A production-ready, full-featured Inventory Management System built with **PHP**
 
 ## Installation & Setup
 
-### Windows Setup (XAMPP)
+### Windows Setup (XAMPP) — Recommended for Beginners
 
-1. **Download & Install XAMPP**
-   - Download from [https://www.apachefriends.org/](https://www.apachefriends.org/) (select PHP 8.x).
-   - Run the installer and select at least **Apache**, **MySQL**, and **PHP**. Install to the default directory (`C:\xampp`).
+#### Step 1: Install Prerequisites
 
-2. **Start Services**
-   - Open the **XAMPP Control Panel** and start **Apache** and **MySQL**.
+1. **Install Git for Windows** (if not already installed)
+   - Download from [https://git-scm.com/download/win](https://git-scm.com/download/win).
+   - Run the installer. Accept all default options and click **Next** through each screen.
+   - Once installed, you can open **Git Bash** or **Command Prompt** to use `git` commands.
 
-3. **Clone the Repository**
-   ```cmd
-   cd C:\xampp\htdocs
-   git clone <YOUR_REPOSITORY_URL> inventory-management-system
-   cd inventory-management-system
-   ```
+2. **Download & Install XAMPP**
+   - Go to [https://www.apachefriends.org/](https://www.apachefriends.org/).
+   - Click **XAMPP for Windows** — make sure the version says **PHP 8.x** (e.g. PHP 8.2.12).
+   - Run the downloaded `.exe` installer.
+   - When the component selection screen appears, ensure **Apache**, **MySQL**, and **PHP** are checked (they should be by default).
+   - Install to the default directory: `C:\xampp`.
+   - Click **Finish** when the installation completes.
 
-4. **Create the Database**
-   - Open **phpMyAdmin** at [http://localhost/phpmyadmin](http://localhost/phpmyadmin).
-   - Click **New** in the left sidebar, enter `inventory_db` as the database name, select `utf8mb4_unicode_ci` as the collation, and click **Create**.
-   - Select the `inventory_db` database, go to the **Import** tab, choose the file `sql/schema.sql` from the project, and click **Go**.
+#### Step 2: Start Apache & MySQL
 
-5. **Configure Environment**
-   ```cmd
-   copy .env.example .env
-   ```
-   Edit `.env` with Notepad and set:
-   ```env
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_NAME=inventory_db
-   DB_USER=root
-   DB_PASS=
-   ```
-   > XAMPP's default MySQL user is `root` with an empty password.
+1. Open the **XAMPP Control Panel** (search for "XAMPP" in the Windows Start Menu, or run `C:\xampp\xampp-control.exe`).
+2. Click the **Start** button next to **Apache** — the status should turn green.
+3. Click the **Start** button next to **MySQL** — the status should turn green.
+4. If Windows Firewall prompts you, click **Allow Access**.
 
-6. **Access the Application**
-   Open your browser and navigate to:
-   ```
-   http://localhost/inventory-management-system/login.php
-   ```
+> **Troubleshooting:** If Apache fails to start, port 80 may be in use. Open XAMPP → Config → Apache (httpd.conf) and change `Listen 80` to `Listen 8080`. Then access the app at `http://localhost:8080/...` instead.
 
-### Windows Setup (Laragon)
+#### Step 3: Clone the Repository
 
-1. **Download & Install Laragon**
-   - Download from [https://laragon.org/download/](https://laragon.org/download/) (Full edition recommended).
-   - Run the installer with default settings.
+Open **Command Prompt** (press `Win + R`, type `cmd`, press Enter) and run:
 
-2. **Start Services**
-   - Open **Laragon** and click **Start All**.
+```cmd
+cd C:\xampp\htdocs
+git clone https://github.com/forlabuse35-source/inventory.git inventory-management-system
+cd inventory-management-system
+git checkout UI
+```
 
-3. **Clone the Repository**
-   ```cmd
-   cd C:\laragon\www
-   git clone <YOUR_REPOSITORY_URL> inventory-management-system
-   cd inventory-management-system
-   ```
+This places the project inside XAMPP's web root so Apache can serve it.
 
-4. **Create the Database**
-   - Open the **Laragon** menu → **MySQL** → **HeidiSQL** (or use the terminal).
-   - Create a new database named `inventory_db` with charset `utf8mb4`.
-   - Import `sql/schema.sql` into the database.
+#### Step 4: Create the Database via phpMyAdmin
 
-5. **Configure Environment**
-   ```cmd
-   copy .env.example .env
-   ```
-   Edit `.env` and set:
-   ```env
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_NAME=inventory_db
-   DB_USER=root
-   DB_PASS=
-   ```
+1. Open your browser and go to: [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
+2. In the left sidebar, click **New**.
+3. In the **Database name** field, type: `inventory_db`
+4. From the **Collation** dropdown, select: `utf8mb4_unicode_ci`
+5. Click **Create**.
+6. Now click on `inventory_db` in the left sidebar to select it.
+7. Click the **Import** tab at the top.
+8. Click **Choose File** and navigate to: `C:\xampp\htdocs\inventory-management-system\sql\schema.sql`
+9. Scroll down and click **Go**. You should see a success message confirming the tables were created.
 
-6. **Access the Application**
-   Laragon auto-creates a virtual host. Navigate to:
-   ```
-   http://inventory-management-system.test/login.php
-   ```
-   Or use `http://localhost/inventory-management-system/login.php`.
+#### Step 5: Configure the Environment File
+
+In Command Prompt, run:
+
+```cmd
+cd C:\xampp\htdocs\inventory-management-system
+copy .env.example .env
+notepad .env
+```
+
+Notepad will open. Update the file to look exactly like this:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=inventory_db
+DB_USER=root
+DB_PASS=
+DB_CHARSET=utf8mb4
+
+# Application Settings
+APP_NAME="Inventory Management System"
+APP_URL=http://localhost/inventory-management-system
+APP_DEBUG=false
+```
+
+> **Note:** XAMPP's default MySQL user is `root` with **no password** (leave `DB_PASS=` empty). Save the file (`Ctrl + S`) and close Notepad.
+
+#### Step 6: Open the Application
+
+Open your browser and navigate to:
+
+```
+http://localhost/inventory-management-system/login.php
+```
+
+You should see the InvenTrack login page. Log in with the default credentials listed in the [Default Login Credentials](#default-login-credentials) section below.
+
+---
+
+### Windows Setup (Laragon) — Alternative
+
+#### Step 1: Install Prerequisites
+
+1. **Install Git for Windows** — Download from [https://git-scm.com/download/win](https://git-scm.com/download/win) and install with default options.
+
+2. **Download & Install Laragon**
+   - Go to [https://laragon.org/download/](https://laragon.org/download/).
+   - Download the **Full** edition (includes Apache, MySQL, PHP 8.x, and more).
+   - Run the installer and accept the default settings. Laragon installs to `C:\laragon` by default.
+
+#### Step 2: Start Services
+
+1. Open **Laragon** from the Start Menu or desktop shortcut.
+2. Click the **Start All** button in the Laragon window.
+3. Both Apache and MySQL indicators should turn green.
+
+#### Step 3: Clone the Repository
+
+Open **Laragon Terminal** (click the **Terminal** button in the Laragon window) and run:
+
+```cmd
+cd C:\laragon\www
+git clone https://github.com/forlabuse35-source/inventory.git inventory-management-system
+cd inventory-management-system
+git checkout UI
+```
+
+#### Step 4: Create the Database
+
+**Option A — Using Laragon's HeidiSQL:**
+1. In the Laragon window, click **Menu** → **MySQL** → **HeidiSQL**.
+2. Click **Open** to connect with the default root user (no password).
+3. Right-click on the left panel → **Create new** → **Database**.
+4. Name it `inventory_db`, set the collation to `utf8mb4_unicode_ci`, and click **OK**.
+5. Select the `inventory_db` database, then go to **File** → **Run SQL file…**
+6. Navigate to `C:\laragon\www\inventory-management-system\sql\schema.sql` and open it.
+
+**Option B — Using the Terminal:**
+```cmd
+mysql -u root -e "CREATE DATABASE inventory_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root inventory_db < C:\laragon\www\inventory-management-system\sql\schema.sql
+```
+
+#### Step 5: Configure the Environment File
+
+In the terminal, run:
+
+```cmd
+cd C:\laragon\www\inventory-management-system
+copy .env.example .env
+notepad .env
+```
+
+Update the `.env` file:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=inventory_db
+DB_USER=root
+DB_PASS=
+DB_CHARSET=utf8mb4
+
+# Application Settings
+APP_NAME="Inventory Management System"
+APP_URL=http://localhost/inventory-management-system
+APP_DEBUG=false
+```
+
+Save and close Notepad.
+
+#### Step 6: Open the Application
+
+Laragon auto-creates a virtual host. Navigate to either:
+
+```
+http://inventory-management-system.test/login.php
+```
+
+Or the standard URL:
+
+```
+http://localhost/inventory-management-system/login.php
+```
+
+Log in with the default credentials listed in the [Default Login Credentials](#default-login-credentials) section below.
+
+---
+
+### Windows Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Apache won't start (port conflict)** | Another program is using port 80. Change Apache's port in `httpd.conf` to 8080, or stop the conflicting program (Skype, IIS, etc.). |
+| **"MySQL shutdown unexpectedly"** | Another MySQL instance may be running. Stop it via Task Manager or Services (`services.msc`), then retry. |
+| **Blank page after login** | Edit `.env` and set `APP_DEBUG=true` to see PHP errors. Ensure the `php_pdo_mysql` extension is enabled in `php.ini`. |
+| **"Class PDO not found" error** | Open `C:\xampp\php\php.ini`, find `;extension=pdo_mysql` and remove the semicolon (`;`) to enable it. Restart Apache. |
+| **Git not recognized** | Restart Command Prompt after installing Git. If still not working, add `C:\Program Files\Git\bin` to your system PATH. |
+| **Cannot connect to database** | Double-check that MySQL is running in the XAMPP/Laragon control panel, and that `.env` credentials match. |
 
 ---
 
