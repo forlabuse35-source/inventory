@@ -232,7 +232,7 @@ Log in with the default credentials listed in the [Default Login Credentials](#d
 
 ### Ubuntu Setup (LAMP)
 
-### 1. Install LAMP Stack (Ubuntu)
+#### 1. Install LAMP Stack
 
 ```bash
 # Update packages
@@ -256,15 +256,16 @@ sudo a2enmod rewrite
 sudo systemctl restart apache2
 ```
 
-### 2. Clone the Repository
+#### 2. Clone the Repository
 
 ```bash
 cd /var/www/html
-sudo git clone <YOUR_REPOSITORY_URL> inventory-management-system
+sudo git clone https://github.com/forlabuse35-source/inventory.git inventory-management-system
 cd inventory-management-system
+git checkout UI
 ```
 
-### 3. Configure File Permissions
+#### 3. Configure File Permissions
 
 ```bash
 # Set ownership to the web server user
@@ -277,7 +278,7 @@ sudo find /var/www/html/inventory-management-system -type d -exec chmod 755 {} \
 sudo find /var/www/html/inventory-management-system -type f -exec chmod 644 {} \;
 ```
 
-### 4. Create the Database
+#### 4. Create the Database
 
 ```bash
 # Log in to MySQL
@@ -291,7 +292,7 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-### 5. Import the SQL Schema
+#### 5. Import the SQL Schema
 
 ```bash
 sudo mysql -u root inventory_db < /var/www/html/inventory-management-system/sql/schema.sql
@@ -299,7 +300,7 @@ sudo mysql -u root inventory_db < /var/www/html/inventory-management-system/sql/
 
 This creates all required tables (`users`, `products`, `inventory_stock`, `sales_transactions`) and inserts the default admin user.
 
-### 6. Configure Environment Variables
+#### 6. Configure Environment Variables
 
 ```bash
 cd /var/www/html/inventory-management-system
@@ -323,7 +324,7 @@ DB_PASS=YourStrongPassword123!
 
 **Security:** The `.env` file is listed in `.gitignore` and will never be committed to version control.
 
-### 7. Configure Apache Virtual Host (Optional)
+#### 7. Configure Apache Virtual Host (Optional)
 
 For a dedicated domain or subdomain, create a virtual host:
 
@@ -355,7 +356,7 @@ sudo a2ensite inventory.conf
 sudo systemctl restart apache2
 ```
 
-### 8. Access the Application
+#### 8. Access the Application
 
 Open your browser and navigate to:
 
