@@ -28,11 +28,97 @@ A production-ready, full-featured Inventory Management System built with **PHP**
 | **Apache** | 2.4+ | Web server (with `mod_rewrite`) |
 | **Git**  | 2.x     | Version control |
 
-> This guide is tailored for an **Ubuntu LAMP stack** environment. Adjust commands for your OS as needed.
+> Setup instructions are provided for both **Ubuntu (LAMP)** and **Windows (XAMPP / Laragon)** environments below.
 
 ---
 
 ## Installation & Setup
+
+### Windows Setup (XAMPP)
+
+1. **Download & Install XAMPP**
+   - Download from [https://www.apachefriends.org/](https://www.apachefriends.org/) (select PHP 8.x).
+   - Run the installer and select at least **Apache**, **MySQL**, and **PHP**. Install to the default directory (`C:\xampp`).
+
+2. **Start Services**
+   - Open the **XAMPP Control Panel** and start **Apache** and **MySQL**.
+
+3. **Clone the Repository**
+   ```cmd
+   cd C:\xampp\htdocs
+   git clone <YOUR_REPOSITORY_URL> inventory-management-system
+   cd inventory-management-system
+   ```
+
+4. **Create the Database**
+   - Open **phpMyAdmin** at [http://localhost/phpmyadmin](http://localhost/phpmyadmin).
+   - Click **New** in the left sidebar, enter `inventory_db` as the database name, select `utf8mb4_unicode_ci` as the collation, and click **Create**.
+   - Select the `inventory_db` database, go to the **Import** tab, choose the file `sql/schema.sql` from the project, and click **Go**.
+
+5. **Configure Environment**
+   ```cmd
+   copy .env.example .env
+   ```
+   Edit `.env` with Notepad and set:
+   ```env
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_NAME=inventory_db
+   DB_USER=root
+   DB_PASS=
+   ```
+   > XAMPP's default MySQL user is `root` with an empty password.
+
+6. **Access the Application**
+   Open your browser and navigate to:
+   ```
+   http://localhost/inventory-management-system/login.php
+   ```
+
+### Windows Setup (Laragon)
+
+1. **Download & Install Laragon**
+   - Download from [https://laragon.org/download/](https://laragon.org/download/) (Full edition recommended).
+   - Run the installer with default settings.
+
+2. **Start Services**
+   - Open **Laragon** and click **Start All**.
+
+3. **Clone the Repository**
+   ```cmd
+   cd C:\laragon\www
+   git clone <YOUR_REPOSITORY_URL> inventory-management-system
+   cd inventory-management-system
+   ```
+
+4. **Create the Database**
+   - Open the **Laragon** menu → **MySQL** → **HeidiSQL** (or use the terminal).
+   - Create a new database named `inventory_db` with charset `utf8mb4`.
+   - Import `sql/schema.sql` into the database.
+
+5. **Configure Environment**
+   ```cmd
+   copy .env.example .env
+   ```
+   Edit `.env` and set:
+   ```env
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_NAME=inventory_db
+   DB_USER=root
+   DB_PASS=
+   ```
+
+6. **Access the Application**
+   Laragon auto-creates a virtual host. Navigate to:
+   ```
+   http://inventory-management-system.test/login.php
+   ```
+   Or use `http://localhost/inventory-management-system/login.php`.
+
+---
+
+### Ubuntu Setup (LAMP)
 
 ### 1. Install LAMP Stack (Ubuntu)
 

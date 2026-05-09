@@ -10,7 +10,7 @@ function sanitize(string $data): string
 
 function formatCurrency(float $amount): string
 {
-    return '$' . number_format($amount, 2);
+    return '৳' . number_format($amount, 2);
 }
 
 function formatDate(string $date): string

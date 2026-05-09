@@ -48,7 +48,7 @@ $lowStockItems = $db->query('
         </div>
     </div>
     <div class="metric-card">
-        <div class="metric-icon yellow"><i class="fas fa-dollar-sign"></i></div>
+        <div class="metric-icon yellow"><i class="fas fa-coins"></i></div>
         <div class="metric-info">
             <div class="metric-label">Total Revenue</div>
             <div class="metric-value"><?= formatCurrency($totalRevenue) ?></div>

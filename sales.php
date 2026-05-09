@@ -75,7 +75,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         $db->prepare('UPDATE inventory_stock SET status = :s WHERE product_id = :pid')
            ->execute([':s' => $status, ':pid' => $productId]);
 
+        $saleId = $db->lastInsertId();
         $db->commit();
+
+        $_SESSION['last_sale'] = [
+            'invoice_no'   => $saleId,
+            'timestamp'    => date('Y-m-d H:i:s'),
+            'product_name' => $product['name'],
+            'sku'          => $product['sku'],
+            'unit_price'   => $product['base_price'],
+            'quantity'     => $quantity,
+            'subtotal'     => $totalAmount,
+            'vat'          => 0.00,
+            'grand_total'  => $totalAmount,
+            'staff_name'   => $currentUser['full_name'],
+            'notes'        => $notes,
+        ];
+
         setFlash('success', 'Sale recorded successfully. Total: ' . formatCurrency($totalAmount));
     } catch (PDOException $e) {
         $db->rollBack();
@@ -85,6 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
     header('Location: sales.php');
     exit;
 }
+
+$lastSale = $_SESSION['last_sale'] ?? null;
+unset($_SESSION['last_sale']);
 
 // Fetch products with stock for POS
 $posProducts = $db->query('
@@ -147,7 +166,7 @@ $sales = $db->query('
                 </div>
                 <div class="summary-row">
                     <span>Unit Price:</span>
-                    <span id="summaryPrice">-</span>
+                    <span id="summaryPrice">৳0.00</span>
                 </div>
                 <div class="summary-row">
                     <span>Quantity:</span>
@@ -155,7 +174,7 @@ $sales = $db->query('
                 </div>
                 <div class="summary-row summary-total">
                     <span>Total Amount:</span>
-                    <span id="summaryTotal">$0.00</span>
+                    <span id="summaryTotal">৳0.00</span>
                 </div>
             </div>
 
@@ -238,9 +257,9 @@ function updatePOS() {
     if (posProduct.value && qty > 0) {
         posSummary.style.display = 'block';
         document.getElementById('summaryProduct').textContent = name;
-        document.getElementById('summaryPrice').textContent   = '$' + price.toFixed(2);
+        document.getElementById('summaryPrice').textContent   = '৳' + price.toFixed(2);
         document.getElementById('summaryQty').textContent     = qty;
-        document.getElementById('summaryTotal').textContent   = '$' + (price * qty).toFixed(2);
+        document.getElementById('summaryTotal').textContent   = '৳' + (price * qty).toFixed(2);
 
         if (qty > stock) {
             qtyError.textContent = 'Exceeds available stock (' + stock + ' units).';
@@ -278,5 +297,98 @@ posProduct.addEventListener('change', () => {
 
 initTableSearch('salesSearch', 'salesTable');
 </script>
+
+<?php if ($lastSale): ?>
+<!-- Tax Invoice Receipt Modal -->
+<div class="modal-overlay show" id="receiptModal">
+    <div class="modal" style="max-width:520px;">
+        <div class="modal-header">
+            <h3 class="modal-title"><i class="fas fa-file-invoice" style="margin-right:8px; color: var(--accent);"></i>Tax Invoice</h3>
+            <button class="modal-close" onclick="closeModal('receiptModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="receiptContent">
+            <div class="receipt">
+                <div class="receipt-header">
+                    <div class="receipt-company">
+                        <i class="fas fa-boxes-stacked receipt-logo-icon"></i>
+                        <h2><?= sanitize(APP_NAME) ?></h2>
+                    </div>
+                    <p class="receipt-label">TAX INVOICE</p>
+                </div>
+                <div class="receipt-meta">
+                    <div class="receipt-meta-row">
+                        <span>Invoice #:</span>
+                        <strong>INV-<?= str_pad($lastSale['invoice_no'], 6, '0', STR_PAD_LEFT) ?></strong>
+                    </div>
+                    <div class="receipt-meta-row">
+                        <span>Date &amp; Time:</span>
+                        <strong><?= formatDate($lastSale['timestamp']) ?></strong>
+                    </div>
+                    <div class="receipt-meta-row">
+                        <span>Processed By:</span>
+                        <strong><?= sanitize($lastSale['staff_name']) ?></strong>
+                    </div>
+                </div>
+                <table class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th style="text-align:center;">Qty</th>
+                            <th style="text-align:right;">Price</th>
+                            <th style="text-align:right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong><?= sanitize($lastSale['product_name']) ?></strong><br>
+                                <small style="color:var(--gray-400);"><?= sanitize($lastSale['sku']) ?></small>
+                            </td>
+                            <td style="text-align:center;"><?= $lastSale['quantity'] ?></td>
+                            <td style="text-align:right;"><?= formatCurrency($lastSale['unit_price']) ?></td>
+                            <td style="text-align:right;"><?= formatCurrency($lastSale['subtotal']) ?></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="receipt-totals">
+                    <div class="receipt-totals-row">
+                        <span>Subtotal</span>
+                        <span><?= formatCurrency($lastSale['subtotal']) ?></span>
+                    </div>
+                    <div class="receipt-totals-row">
+                        <span>VAT</span>
+                        <span><?= formatCurrency($lastSale['vat']) ?></span>
+                    </div>
+                    <div class="receipt-totals-row receipt-grand-total">
+                        <span>Grand Total</span>
+                        <span><?= formatCurrency($lastSale['grand_total']) ?></span>
+                    </div>
+                </div>
+                <?php if ($lastSale['notes']): ?>
+                <div class="receipt-notes">
+                    <small><strong>Notes:</strong> <?= sanitize($lastSale['notes']) ?></small>
+                </div>
+                <?php endif; ?>
+                <div class="receipt-footer-text">
+                    <p>Thank you for your purchase!</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('receiptModal')">
+                <i class="fas fa-times"></i> Close
+            </button>
+            <button class="btn btn-primary" onclick="printReceipt()">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+</div>
+<script>
+function printReceipt() {
+    window.print();
+}
+</script>
+<?php endif; ?>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
